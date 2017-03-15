@@ -1,4 +1,4 @@
-# socket-chat-room #
+# Socket Chat Room #
 
 Real time chat room based on node.js socket.io
 
