@@ -1,0 +1,121 @@
+<html>
+    <head>
+        <title>Ziplistic Chat App</title>
+ 		<link href="/stylesheets/style.css" rel="stylesheet" />
+     </head>
+    <body>
+        
+       
+
+
+
+<div class="container"> 
+
+	<h1>Hi <%- user.displayName%>!</h1>
+    <p><a href="/logout">Logout</a></p>
+    <div class="chat">   
+      <div class="chat-history">
+        <ul class="chat-ul">
+            
+        </ul>
+        
+      </div> <!-- end chat-history -->
+      
+    </div> <!-- end chat --> 
+  
+
+<form id="send-message">
+            <div class="bottom_wrapper clearfix">
+			<div class="message_input_wrapper">
+				<input size="35" autocomplete="off" id="message" class="message_input" placeholder="Type your message here...">
+			</div>
+		</div>
+        </form>
+
+ </div>     
+
+
+
+
+
+        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <script src="/javascripts/socket.io.js"></script>
+        <script>
+            jQuery(function($){
+
+            	var socket = io();
+                var $messageForm = $('#send-message');
+                var $messageBox = $('#message');
+
+ 
+				socket.emit('add user', '<%- user.displayName%>', '<%- user.id%>');
+
+                
+
+
+
+                $messageForm.submit(function(e){
+                	if($messageBox.val()==''){
+                		return false;
+                	}
+                    e.preventDefault();
+                    socket.emit('new message', $messageBox.val());
+                    $('.chat-ul').append(`<li>
+				            <div class="message-data">
+				              <span class="message-data-name"><i class="fa fa-circle you"></i> You</span>
+				            </div>
+				            <div class="message you-message">
+				            ${$messageBox.val()}
+
+				            </div>
+	          			</li>`); 
+					$('body').scrollTop($('body').height()+250);
+
+                    $messageBox.val('');
+                });
+
+                socket.on('new message', function(data){
+                    console.log('Received data: ' + data);
+                      $('.chat-ul').append(` <li class="clearfix">
+			            <div class="message-data align-right">
+			              <span class="message-data-name">${data.username}</span> <i class="fa fa-circle me"></i>
+			            </div>
+			            <div class="message me-message float-right">  ${data.message}</div>
+			          </li> `); 
+					$('body').scrollTop($('body').height()+250);
+                });
+
+
+
+
+                socket.on('user left', function(data){
+                    console.log(data);
+                      $('.chat-ul').append(` <li class="clearfix"> 
+			            <div class="left-user">
+			            <p>${data.username} has left
+			            <br>Connected User: ${data.numUsers}</p>
+			            </div>
+			          </li> `); 
+			          $('body').scrollTop($('body').height()+250);
+                });
+
+                socket.on('user joined', function(data){
+                    console.log(data);
+                      $('.chat-ul').append(` <li class="clearfix"> 
+			            <div class="left-user">
+			            <p>${data.username} has joined
+			            <br>Connected User: ${data.numUsers}</p>
+			            </div>
+			          </li> `); 
+                      $('body').scrollTop($('body').height()+250);
+                });
+
+            });
+
+        </script>
+
+
+
+
+    </body>
+</html>
